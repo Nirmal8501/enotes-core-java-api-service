@@ -31,6 +31,13 @@ public class CategoryDaoImpl implements CategoryDao {
              SELECT id, name, description, is_active, is_deleted, created_by, created_on, updated_by, updated_on FROM category where is_active = true;
             """;
 
+    private static final String GET_CATEGORY_BY_ID = """
+            Select id, name, description, is_active, is_deleted, created_by, created_on, updated_by, updated_on FROM category where id = ? AND is_deleted = false
+            """;
+
+    private static final String DELETE_CATEGORY_BY_ID = """
+            UPDATE category SET is_deleted = true WHERE id = ?;
+            """;
 
     @Override
     public Optional<Category> createCategory(Category category) {
@@ -115,5 +122,60 @@ public class CategoryDaoImpl implements CategoryDao {
             logger.error("Exception while trying to Fetch all active categories....", e);
         }
         return fetchedCategories;
+    }
+
+    @Override
+    public Optional<Category> readCategoryById(Integer id) {
+
+        try (Connection connection = DBConnectionManager.getConnection();
+             PreparedStatement ps = connection.prepareStatement(GET_CATEGORY_BY_ID);
+        ) {
+            ps.setInt(1, id);
+            ResultSet resultSet = ps.executeQuery();
+
+            if (resultSet.next()) {
+                Category category = new Category();
+                category.setId(resultSet.getInt("id"));
+                category.setName(resultSet.getString("name"));
+                category.setDescription(resultSet.getString("description"));
+                category.setIsActive(resultSet.getBoolean("is_active"));
+                category.setIsDeleted(resultSet.getBoolean("is_deleted"));
+                category.setCreatedBy(resultSet.getInt("created_by"));
+                category.setCreatedOn(resultSet.getTimestamp("created_on"));
+                category.setUpdatedBy(resultSet.getInt("updated_by"));
+                category.setUpdatedOn(resultSet.getTimestamp("updated_on"));
+
+                logger.info("Fetched category with ID {}: {}", id, category);
+                return Optional.of(category);
+            } else {
+                logger.warn("No category found with ID: {}", id);
+                return Optional.empty();
+            }
+
+        } catch (Exception e) {
+            logger.error("Error while fetching category with ID: {}", id, e);
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Boolean deleteCategoryById(Integer id) {
+        try(Connection connection = DBConnectionManager.getConnection();
+            PreparedStatement ps = connection.prepareStatement(DELETE_CATEGORY_BY_ID)
+        ){
+            ps.setInt(1, id);
+            int rowsDeleted = ps.executeUpdate();
+            if (rowsDeleted > 0) {
+                logger.info("Category with ID {} marked as deleted", id);
+                return true;
+            } else {
+                logger.warn("No category found to delete with ID {}", id);
+                return false;
+            }
+
+        } catch (Exception e) {
+            logger.error("Exception while deleting category with ID: {}", id, e);
+            return false; // or rethrow as custom exception TO-DO
+        }
     }
 }
