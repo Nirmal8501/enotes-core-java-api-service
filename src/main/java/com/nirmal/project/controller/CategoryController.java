@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Optional;
 
 @Path("/enotes-api-service/api/v1/category")
 public class CategoryController {
@@ -53,6 +54,42 @@ public class CategoryController {
         if(!allCategories.isEmpty())
             return Response.ok(gson.toJson(allCategories), MediaType.APPLICATION_JSON).build();
         return Response.noContent().build();
+    }
+
+    @GET
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getCategoryById(@PathParam("id") Integer id){
+        Optional<CategoryDto> categoryDto = categoryService.getCategoryById(id);
+        if(categoryDto.isPresent()){
+            return Response.ok()
+                    .type(MediaType.APPLICATION_JSON)
+                    .entity(gson.toJson(categoryDto.get()))
+                    .build();
+        }
+
+        return Response.status(Response.Status.NOT_FOUND)
+                .type(MediaType.APPLICATION_JSON)
+                .entity(String.format("{\"error\": \"Category with ID -> %d not found\"}", id))
+                .build();
+    }
+
+    @DELETE
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteCategoryById(@PathParam("id") Integer id){
+        Boolean res = categoryService.deleteCategoryById(id);
+        if(res){
+            return Response.ok()
+                    .type(MediaType.APPLICATION_JSON)
+                    .entity(String.format("{\"message\": \"Category with ID -> %d deleted successfully\"}", id))
+                    .build();
+        }
+
+        return Response.status(Response.Status.NOT_FOUND)
+                .type(MediaType.APPLICATION_JSON)
+                .entity(String.format("{\"error\": \"Unable to Delete. Category with ID -> %d not found\"}", id))
+                .build();
     }
 
 }

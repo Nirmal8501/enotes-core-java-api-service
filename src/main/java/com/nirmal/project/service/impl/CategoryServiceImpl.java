@@ -41,4 +41,18 @@ public class CategoryServiceImpl implements CategoryService {
         List<Category> categories = categoryDao.readActiveCategories();
         return categories.stream().map(CategoryMapper::toDto).toList();
     }
+
+    @Override
+    public Optional<CategoryDto> getCategoryById(Integer id) {
+        Optional<Category> category =  categoryDao.readCategoryById(id);
+        if(category.isPresent()){
+            return Optional.of(CategoryMapper.toDto(category.get()));
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Boolean deleteCategoryById(Integer id) {
+        return categoryDao.deleteCategoryById(id);
+    }
 }

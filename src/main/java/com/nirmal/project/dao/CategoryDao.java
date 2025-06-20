@@ -9,4 +9,6 @@ public interface CategoryDao {
     Optional<Category> createCategory(Category category);
     List<Category> readAllCategories();
     List<Category> readActiveCategories();
+    Optional<Category> readCategoryById(Integer id);
+    Boolean deleteCategoryById(Integer id);
 }
