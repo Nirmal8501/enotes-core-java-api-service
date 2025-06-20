@@ -8,4 +8,5 @@ import java.util.Optional;
 public interface CategoryDao {
     Optional<Category> createCategory(Category category);
     List<Category> readAllCategories();
+    List<Category> readActiveCategories();
 }

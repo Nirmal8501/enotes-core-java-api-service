@@ -2,6 +2,7 @@ package com.nirmal.project.controller;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.nirmal.project.dto.CategoryDto;
 import com.nirmal.project.model.Category;
 import com.nirmal.project.service.CategoryService;
 import com.nirmal.project.service.impl.CategoryServiceImpl;
@@ -26,8 +27,8 @@ public class CategoryController {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response saveCategory(String categoryJson){
-        Category category = gson.fromJson(categoryJson, Category.class);
-        Boolean res =  categoryService.saveCategory(category);
+        CategoryDto categoryDto = gson.fromJson(categoryJson, CategoryDto.class);
+        Boolean res =  categoryService.saveCategory(categoryDto);
         if (res) {
             return Response.status(Response.Status.CREATED)
                     .entity("{\"message\": \"Category created successfully\"}")
@@ -41,10 +42,17 @@ public class CategoryController {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getCategories(){
-        List<Category> allCategories = categoryService.getAllCategories();
+    public Response getCategories(@QueryParam("active") Boolean isActive){
+        List<CategoryDto> allCategories;
+        if(isActive == null){
+            allCategories = categoryService.getAllCategories();
+        }else{
+            allCategories = categoryService.getActiveCategories();
+        }
+
         if(!allCategories.isEmpty())
             return Response.ok(gson.toJson(allCategories), MediaType.APPLICATION_JSON).build();
         return Response.noContent().build();
     }
+
 }

@@ -18,20 +18,25 @@ public class CategoryDaoImpl implements CategoryDao {
     private static Logger logger = LoggerFactory.getLogger(CategoryDaoImpl.class);
 
     private static final String INSERT_CATEGORY = """
-        INSERT INTO category (name, description, is_active, is_deleted, created_by)
-        VALUES (?, ?, ?, ?, ?);
-    """;
+                INSERT INTO category (name, description, is_active, is_deleted, created_by)
+                VALUES (?, ?, ?, ?, ?);
+            """;
 
     private static final String GET_ALL_CATEGORIES = """
-        SELECT id, name, description, is_active, is_deleted, created_by, created_on, updated_by, updated_on
-        FROM category WHERE is_deleted = false;
-    """;
+                SELECT id, name, description, is_active, is_deleted, created_by, created_on, updated_by, updated_on
+                FROM category WHERE is_deleted = false;
+            """;
+
+    private static final String GET_ACTIVE_CATEGORIES = """
+             SELECT id, name, description, is_active, is_deleted, created_by, created_on, updated_by, updated_on FROM category where is_active = true;
+            """;
+
 
     @Override
     public Optional<Category> createCategory(Category category) {
-        try(Connection connection = DBConnectionManager.getConnection();
-            PreparedStatement ps = connection.prepareStatement(INSERT_CATEGORY, Statement.RETURN_GENERATED_KEYS);
-        ){
+        try (Connection connection = DBConnectionManager.getConnection();
+             PreparedStatement ps = connection.prepareStatement(INSERT_CATEGORY, Statement.RETURN_GENERATED_KEYS);
+        ) {
             ps.setString(1, category.getName());
             ps.setString(2, category.getDescription());
             ps.setBoolean(3, category.getIsActive());
@@ -49,7 +54,7 @@ public class CategoryDaoImpl implements CategoryDao {
                 }
             }
             logger.info("Successfully Inserted Category: {}", category);
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.error("Category Insert failed...", e);
         }
         return Optional.empty();
@@ -58,27 +63,56 @@ public class CategoryDaoImpl implements CategoryDao {
     @Override
     public List<Category> readAllCategories() {
         List<Category> fetchedCategories = new ArrayList<>();
+        try (Connection connection = DBConnectionManager.getConnection();
+             PreparedStatement ps = connection.prepareStatement(GET_ALL_CATEGORIES);
+             ResultSet rs = ps.executeQuery();
+        ) {
+            while (rs.next()) {
+                Category c = new Category();
+                c.setId(rs.getInt("id"));
+                c.setName(rs.getString("name"));
+                c.setDescription(rs.getString("description"));
+                c.setIsActive(rs.getBoolean("is_active"));
+                c.setIsDeleted(rs.getBoolean("is_deleted"));
+                c.setCreatedBy(rs.getInt("created_by"));
+                c.setCreatedOn(rs.getTimestamp("created_on"));
+                c.setUpdatedBy(rs.getInt("updated_by"));
+                c.setUpdatedOn(rs.getTimestamp("updated_on"));
+
+                fetchedCategories.add(c);
+            }
+            logger.info("Returning Fetched Categories: {}", fetchedCategories);
+        } catch (Exception e) {
+            logger.error("Exception while trying to Fetch all categories....", e);
+        }
+        return fetchedCategories;
+    }
+
+    @Override
+    public List<Category> readActiveCategories() {
+        List<Category> fetchedCategories = new ArrayList<>();
         try(Connection connection = DBConnectionManager.getConnection();
-            PreparedStatement ps = connection.prepareStatement(GET_ALL_CATEGORIES);
+            PreparedStatement ps = connection.prepareStatement(GET_ACTIVE_CATEGORIES);
             ResultSet rs = ps.executeQuery();
         ){
-           while (rs.next()){
-               Category c = new Category();
-               c.setId(rs.getInt("id"));
-               c.setName(rs.getString("name"));
-               c.setDescription(rs.getString("description"));
-               c.setIsActive(rs.getBoolean("is_active"));
-               c.setIsDeleted(rs.getBoolean("is_deleted"));
-               c.setCreatedBy(rs.getInt("created_by"));
-               c.setCreatedOn(rs.getTimestamp("created_on"));
-               c.setUpdatedBy(rs.getInt("updated_by"));
-               c.setUpdatedOn(rs.getTimestamp("updated_on"));
+            while (rs.next()){
+                Category c = new Category();
+                c.setId(rs.getInt("id"));
+                c.setName(rs.getString("name"));
+                c.setDescription(rs.getString("description"));
+                c.setIsActive(rs.getBoolean("is_active"));
+                c.setIsDeleted(rs.getBoolean("is_deleted"));
+                c.setCreatedBy(rs.getInt("created_by"));
+                c.setCreatedOn(rs.getTimestamp("created_on"));
+                c.setUpdatedBy(rs.getInt("updated_by"));
+                c.setUpdatedOn(rs.getTimestamp("updated_on"));
 
-               fetchedCategories.add(c);
-           }
-            logger.info("Returning Fetched Categories: {}", fetchedCategories);
+                fetchedCategories.add(c);
+            }
+            logger.info("Returning Fetched Active Categories: {}", fetchedCategories);
+
         }catch (Exception e){
-            logger.error("Exception while trying to Fetch all categories....", e);
+            logger.error("Exception while trying to Fetch all active categories....", e);
         }
         return fetchedCategories;
     }
