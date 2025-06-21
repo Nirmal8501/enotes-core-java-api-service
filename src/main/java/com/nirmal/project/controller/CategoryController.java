@@ -92,4 +92,24 @@ public class CategoryController {
                 .build();
     }
 
+    @PATCH
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response updateCategoryById(@PathParam("id") Integer id, String categoryDtoJson){
+        CategoryDto categoryDto = gson.fromJson(categoryDtoJson, CategoryDto.class);
+        Boolean res = categoryService.updateCategoryById(id, categoryDto);
+        if(res){
+            return Response.ok()
+                    .type(MediaType.APPLICATION_JSON)
+                    .entity(String.format("{\"message\": \"Category with ID -> %d Updated Successfully\"}", id))
+                    .build();
+        }
+
+        return Response.status(Response.Status.NOT_FOUND)
+                .type(MediaType.APPLICATION_JSON)
+                .entity(String.format("{\"error\": \"Unable to Update. Category with ID -> %d not found\"}", id))
+                .build();
+    }
+
 }

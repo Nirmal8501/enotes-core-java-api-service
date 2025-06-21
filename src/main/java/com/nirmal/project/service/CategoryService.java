@@ -11,4 +11,5 @@ public interface CategoryService {
     public List<CategoryDto> getActiveCategories();
     public Optional<CategoryDto> getCategoryById(Integer id);
     public Boolean deleteCategoryById(Integer id);
+    public Boolean updateCategoryById(Integer id, CategoryDto categoryDto);
 }

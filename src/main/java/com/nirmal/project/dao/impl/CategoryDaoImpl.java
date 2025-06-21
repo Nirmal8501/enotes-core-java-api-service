@@ -3,13 +3,11 @@ package com.nirmal.project.dao.impl;
 import com.nirmal.project.dao.CategoryDao;
 import com.nirmal.project.db.DBConnectionManager;
 import com.nirmal.project.model.Category;
+import com.sun.jdi.event.ExceptionEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.List;
@@ -38,6 +36,15 @@ public class CategoryDaoImpl implements CategoryDao {
     private static final String DELETE_CATEGORY_BY_ID = """
             UPDATE category SET is_deleted = true WHERE id = ?;
             """;
+
+    private static final String UPDATE_CATEGORY_BY_ID = """
+            UPDATE category SET name = COALESCE(?, name),
+            description = COALESCE(?, description),
+            is_active = COALESCE(?, is_active),
+            updated_by = COALESCE(?, updated_by),
+            updated_on = CURRENT_TIMESTAMP
+            WHERE id = ? AND is_deleted = false;
+           """;
 
     @Override
     public Optional<Category> createCategory(Category category) {
@@ -176,6 +183,35 @@ public class CategoryDaoImpl implements CategoryDao {
         } catch (Exception e) {
             logger.error("Exception while deleting category with ID: {}", id, e);
             return false; // or rethrow as custom exception TO-DO
+        }
+    }
+
+    @Override
+    public Boolean updateCategoryById(Integer id, Category category) {
+        try(Connection connection = DBConnectionManager.getConnection();
+            PreparedStatement ps = connection.prepareStatement(UPDATE_CATEGORY_BY_ID);
+        ){
+            ps.setString(1, category.getName());
+            ps.setString(2, category.getDescription());
+            if (category.getIsActive() != null) {
+                ps.setBoolean(3, category.getIsActive());
+            } else {
+                ps.setNull(3, Types.BOOLEAN);
+            }
+            if (category.getUpdatedBy() != null) {
+                ps.setInt(4, category.getUpdatedBy());
+            } else {
+                ps.setNull(4, Types.INTEGER);
+            }
+            ps.setInt(5, id);
+
+            int rowsUpdated = ps.executeUpdate();
+            logger.info("Category with ID {} updated successfully...", id);
+            return rowsUpdated > 0;
+
+        } catch (Exception e) {
+            logger.error("Error updating category with ID: {}", id, e);
+            return false;
         }
     }
 }
