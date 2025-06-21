@@ -11,4 +11,5 @@ public interface CategoryDao {
     List<Category> readActiveCategories();
     Optional<Category> readCategoryById(Integer id);
     Boolean deleteCategoryById(Integer id);
+    Boolean updateCategoryById(Integer id, Category category);
 }

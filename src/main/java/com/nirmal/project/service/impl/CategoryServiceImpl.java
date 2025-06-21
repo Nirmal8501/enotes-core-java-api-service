@@ -55,4 +55,11 @@ public class CategoryServiceImpl implements CategoryService {
     public Boolean deleteCategoryById(Integer id) {
         return categoryDao.deleteCategoryById(id);
     }
+
+    @Override
+    public Boolean updateCategoryById(Integer id, CategoryDto categoryDto) {
+        Category category = CategoryMapper.toEntity(categoryDto);
+        category.setUpdatedBy(id);
+        return categoryDao.updateCategoryById(id,category);
+    }
 }
