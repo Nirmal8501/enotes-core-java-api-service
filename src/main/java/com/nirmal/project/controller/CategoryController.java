@@ -42,18 +42,20 @@ public class CategoryController {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getCategories(@QueryParam("active") Boolean isActive) {
-//        throw new NullPointerException("lol lmao");
-//        throw new ResourceNotFoundException("lol test");
-        List<CategoryDto> allCategories;
-        if (isActive == null) {
-            allCategories = categoryService.getAllCategories();
-        } else {
-            allCategories = categoryService.getActiveCategories();
-        }
+        try {
+            List<CategoryDto> allCategories;
+            if (isActive == null) {
+                allCategories = categoryService.getAllCategories();
+            } else {
+                allCategories = categoryService.getActiveCategories();
+            }
 
-        if (!allCategories.isEmpty())
-            return Response.ok(gson.toJson(allCategories), MediaType.APPLICATION_JSON).build();
-        return Response.noContent().build();
+            if (!allCategories.isEmpty())
+                return Response.ok(gson.toJson(allCategories), MediaType.APPLICATION_JSON).build();
+            return Response.noContent().build();
+        } catch (Exception e) {
+            return GlobalExceptionHandler.handle(e);
+        }
     }
 
     @GET
