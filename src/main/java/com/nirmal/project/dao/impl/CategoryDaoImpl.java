@@ -2,6 +2,7 @@ package com.nirmal.project.dao.impl;
 
 import com.nirmal.project.dao.CategoryDao;
 import com.nirmal.project.db.DBConnectionManager;
+import com.nirmal.project.exception.DatabaseAccessException;
 import com.nirmal.project.model.Category;
 import com.sun.jdi.event.ExceptionEvent;
 import org.slf4j.Logger;
@@ -70,6 +71,7 @@ public class CategoryDaoImpl implements CategoryDao {
             logger.info("Successfully Inserted Category: {}", category);
         } catch (Exception e) {
             logger.error("Category Insert failed...", e);
+            throw new DatabaseAccessException("Exception Occured in DB operation: " + e.getMessage());
         }
         return Optional.empty();
     }
@@ -96,10 +98,10 @@ public class CategoryDaoImpl implements CategoryDao {
                 fetchedCategories.add(c);
             }
             logger.info("Returning Fetched Categories: {}", fetchedCategories);
+            return fetchedCategories;
         } catch (Exception e) {
-            logger.error("Exception while trying to Fetch all categories....", e);
+            throw new DatabaseAccessException("Exception Occured in DB operation: " + e.getMessage());
         }
-        return fetchedCategories;
     }
 
     @Override
@@ -124,11 +126,11 @@ public class CategoryDaoImpl implements CategoryDao {
                 fetchedCategories.add(c);
             }
             logger.info("Returning Fetched Active Categories: {}", fetchedCategories);
-
+            return fetchedCategories;
         }catch (Exception e){
             logger.error("Exception while trying to Fetch all active categories....", e);
+            throw new DatabaseAccessException("Exception Occured in DB operation: " + e.getMessage());
         }
-        return fetchedCategories;
     }
 
     @Override
@@ -161,7 +163,7 @@ public class CategoryDaoImpl implements CategoryDao {
 
         } catch (Exception e) {
             logger.error("Error while fetching category with ID: {}", id, e);
-            return Optional.empty();
+            throw new RuntimeException("Exception occured while inserting category to DB");
         }
     }
 
@@ -182,7 +184,7 @@ public class CategoryDaoImpl implements CategoryDao {
 
         } catch (Exception e) {
             logger.error("Exception while deleting category with ID: {}", id, e);
-            return false; // or rethrow as custom exception TO-DO
+            throw new DatabaseAccessException("Exception Occured in DB operation: " + e.getMessage());
         }
     }
 
@@ -211,7 +213,7 @@ public class CategoryDaoImpl implements CategoryDao {
 
         } catch (Exception e) {
             logger.error("Error updating category with ID: {}", id, e);
-            return false;
+            throw new DatabaseAccessException("Exception Occured in DB operation: " + e.getMessage());
         }
     }
 }

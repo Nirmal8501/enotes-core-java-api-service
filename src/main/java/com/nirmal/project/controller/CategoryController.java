@@ -1,11 +1,9 @@
 package com.nirmal.project.controller;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.nirmal.project.dto.CategoryDto;
-import com.nirmal.project.model.Category;
+import com.nirmal.project.exception.GlobalExceptionHandler;
 import com.nirmal.project.service.CategoryService;
-import com.nirmal.project.service.impl.CategoryServiceImpl;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -21,37 +19,39 @@ public class CategoryController {
     private static final Logger logger = LoggerFactory.getLogger(CategoryController.class);
     private final CategoryService categoryService;
 
+
     public CategoryController(CategoryService categoryService) {
         this.categoryService = categoryService;
     }
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response saveCategory(String categoryJson){
-        CategoryDto categoryDto = gson.fromJson(categoryJson, CategoryDto.class);
-        Boolean res =  categoryService.saveCategory(categoryDto);
-        if (res) {
+    public Response saveCategory(String categoryJson) {
+        try {
+            CategoryDto categoryDto = gson.fromJson(categoryJson, CategoryDto.class);
+            Boolean res = categoryService.saveCategory(categoryDto);
             return Response.status(Response.Status.CREATED)
                     .entity("{\"message\": \"Category created successfully\"}")
                     .build();
-        } else {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("{\"error\": \"Failed to create category\"}")
-                    .build();
+
+        } catch (Exception e) {
+            return GlobalExceptionHandler.handle(e);
         }
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getCategories(@QueryParam("active") Boolean isActive){
+    public Response getCategories(@QueryParam("active") Boolean isActive) {
+//        throw new NullPointerException("lol lmao");
+//        throw new ResourceNotFoundException("lol test");
         List<CategoryDto> allCategories;
-        if(isActive == null){
+        if (isActive == null) {
             allCategories = categoryService.getAllCategories();
-        }else{
+        } else {
             allCategories = categoryService.getActiveCategories();
         }
 
-        if(!allCategories.isEmpty())
+        if (!allCategories.isEmpty())
             return Response.ok(gson.toJson(allCategories), MediaType.APPLICATION_JSON).build();
         return Response.noContent().build();
     }
@@ -59,57 +59,49 @@ public class CategoryController {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getCategoryById(@PathParam("id") Integer id){
-        Optional<CategoryDto> categoryDto = categoryService.getCategoryById(id);
-        if(categoryDto.isPresent()){
+    public Response getCategoryById(@PathParam("id") Integer id) {
+        try {
+            Optional<CategoryDto> categoryDto = categoryService.getCategoryById(id);
             return Response.ok()
                     .type(MediaType.APPLICATION_JSON)
                     .entity(gson.toJson(categoryDto.get()))
                     .build();
-        }
 
-        return Response.status(Response.Status.NOT_FOUND)
-                .type(MediaType.APPLICATION_JSON)
-                .entity(String.format("{\"error\": \"Category with ID -> %d not found\"}", id))
-                .build();
+        } catch (Exception e) {
+            return GlobalExceptionHandler.handle(e);
+        }
     }
 
     @DELETE
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response deleteCategoryById(@PathParam("id") Integer id){
-        Boolean res = categoryService.deleteCategoryById(id);
-        if(res){
+    public Response deleteCategoryById(@PathParam("id") Integer id) {
+        try {
+            categoryService.deleteCategoryById(id);
             return Response.ok()
                     .type(MediaType.APPLICATION_JSON)
                     .entity(String.format("{\"message\": \"Category with ID -> %d deleted successfully\"}", id))
                     .build();
+        } catch (Exception e) {
+            return GlobalExceptionHandler.handle(e);
         }
-
-        return Response.status(Response.Status.NOT_FOUND)
-                .type(MediaType.APPLICATION_JSON)
-                .entity(String.format("{\"error\": \"Unable to Delete. Category with ID -> %d not found\"}", id))
-                .build();
     }
 
     @PATCH
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response updateCategoryById(@PathParam("id") Integer id, String categoryDtoJson){
+    public Response updateCategoryById(@PathParam("id") Integer id, String categoryDtoJson) {
         CategoryDto categoryDto = gson.fromJson(categoryDtoJson, CategoryDto.class);
-        Boolean res = categoryService.updateCategoryById(id, categoryDto);
-        if(res){
+        try {
+            categoryService.updateCategoryById(id, categoryDto);
             return Response.ok()
                     .type(MediaType.APPLICATION_JSON)
-                    .entity(String.format("{\"message\": \"Category with ID -> %d Updated Successfully\"}", id))
+                    .entity(String.format("{\"message\": \"Category with ID -> %d updated successfully\"}", id))
                     .build();
+        } catch (Exception e) {
+            return GlobalExceptionHandler.handle(e);
         }
-
-        return Response.status(Response.Status.NOT_FOUND)
-                .type(MediaType.APPLICATION_JSON)
-                .entity(String.format("{\"error\": \"Unable to Update. Category with ID -> %d not found\"}", id))
-                .build();
     }
 
 }
