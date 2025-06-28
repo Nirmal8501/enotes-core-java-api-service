@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.nirmal.project.dto.CategoryDto;
 import com.nirmal.project.exception.GlobalExceptionHandler;
 import com.nirmal.project.service.CategoryService;
+import com.nirmal.project.utils.validation.CategoryDtoValidator;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -26,9 +28,10 @@ public class CategoryController {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response saveCategory(String categoryJson) {
+    public Response saveCategory(@Valid String categoryJson) {
         try {
             CategoryDto categoryDto = gson.fromJson(categoryJson, CategoryDto.class);
+            CategoryDtoValidator.validate(categoryDto);
             Boolean res = categoryService.saveCategory(categoryDto);
             return Response.status(Response.Status.CREATED)
                     .entity("{\"message\": \"Category created successfully\"}")
@@ -73,6 +76,27 @@ public class CategoryController {
             return GlobalExceptionHandler.handle(e);
         }
     }
+
+//    OR declare throws in service and do
+//    @GET
+//    @Path("/{id}")
+//    @Produces(MediaType.APPLICATION_JSON)
+//    public Response getCategoryById(@PathParam("id") Integer id) {
+//        try {
+//            Optional<CategoryDto> categoryDto = categoryService.getCategoryById(id);
+//            return Response.ok()
+//                    .type(MediaType.APPLICATION_JSON)
+//                    .entity(gson.toJson(categoryDto.get()))
+//                    .build();
+//
+//        }
+//        catch (ResourceNotFoundException e){
+//            return Response.status(Response.Status.NOT_FOUND).entity("some json").build();
+//        }
+//        catch (Exception e) {
+//            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("some json").build();
+//        }
+//    }
 
     @DELETE
     @Path("/{id}")
