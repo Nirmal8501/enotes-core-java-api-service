@@ -100,6 +100,7 @@ public class CategoryDaoImpl implements CategoryDao {
             logger.info("Returning Fetched Categories: {}", fetchedCategories);
             return fetchedCategories;
         } catch (Exception e) {
+            logger.error("Error while fetching all categories...", e);
             throw new DatabaseAccessException("Exception Occured in DB operation: " + e.getMessage());
         }
     }
