@@ -19,7 +19,10 @@ public class GlobalExceptionHandler {
             return buildResponse(500, "Database error: " + ex.getMessage());
         } else if (ex instanceof DatabaseAccessException) {
             return buildResponse(500, ex.getMessage());
-        } else {
+        } else if (ex instanceof CategoryAlreadyExistsException){
+            return buildResponse(409, ex.getMessage());
+        }
+        else {
             return buildResponse(500, "Something went wrong");
         }
     }

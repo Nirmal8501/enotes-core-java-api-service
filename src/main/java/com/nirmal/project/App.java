@@ -5,14 +5,12 @@ import com.nirmal.project.controller.CategoryController;
 import com.nirmal.project.dao.CategoryDao;
 import com.nirmal.project.dao.impl.CategoryDaoImpl;
 import com.nirmal.project.db.DBConnectionManager;
-import com.nirmal.project.exception.GlobalExceptionHandler;
 import com.nirmal.project.service.CategoryService;
 import com.nirmal.project.service.impl.CategoryServiceImpl;
 import com.nirmal.project.utils.RestUtils;
 import io.muserver.Method;
 import io.muserver.MuServer;
 import io.muserver.MuServerBuilder;
-import io.muserver.rest.RestHandlerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
