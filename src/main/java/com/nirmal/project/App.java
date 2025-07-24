@@ -5,8 +5,10 @@ import com.nirmal.project.controller.CategoryController;
 import com.nirmal.project.dao.CategoryDao;
 import com.nirmal.project.dao.impl.CategoryDaoImpl;
 import com.nirmal.project.db.DBConnectionManager;
+import com.nirmal.project.exception.GlobalExceptionHandler;
 import com.nirmal.project.service.CategoryService;
 import com.nirmal.project.service.impl.CategoryServiceImpl;
+import com.nirmal.project.utils.RestUtils;
 import io.muserver.Method;
 import io.muserver.MuServer;
 import io.muserver.MuServerBuilder;
@@ -27,7 +29,7 @@ public class App {
         server = MuServerBuilder.httpServer()
                 .withHttpPort(55555)
                 .addHandler(Method.GET, "/health", (req, resp, h) -> resp.write("OK"))
-                .addHandler(RestHandlerBuilder.restHandler(categoryController))
+                .addHandler(RestUtils.buildHandler(categoryController))
                 .start();
 
         logger.info("Started server at : {}", server.uri());

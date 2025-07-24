@@ -8,7 +8,7 @@ import java.sql.SQLException;
 
 public class GlobalExceptionHandler {
 
-    public static Response handle(Exception ex) {
+    public static Response handle(Throwable ex) {
         if (ex instanceof ResourceNotFoundException) {
             return buildResponse(404, ex.getMessage());
         } else if (ex instanceof ValidationException) {
@@ -30,4 +30,5 @@ public class GlobalExceptionHandler {
                 .type(MediaType.APPLICATION_JSON)
                 .build();
     }
+
 }
