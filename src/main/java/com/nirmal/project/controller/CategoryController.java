@@ -61,23 +61,6 @@ public class CategoryController {
         }
     }
 
-//    @GET
-//    @Path("/{id}")
-//    @Produces(MediaType.APPLICATION_JSON)
-//    public Response getCategoryById(@PathParam("id") Integer id) {
-//        try {
-//            Optional<CategoryDto> categoryDto = categoryService.getCategoryById(id);
-//            return Response.ok()
-//                    .type(MediaType.APPLICATION_JSON)
-//                    .entity(gson.toJson(categoryDto.get()))
-//                    .build();
-//
-//        } catch (Exception e) {
-//            return GlobalExceptionHandler.handle(e);
-//        }
-//    }
-
-//    OR declare throws in service and do
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)

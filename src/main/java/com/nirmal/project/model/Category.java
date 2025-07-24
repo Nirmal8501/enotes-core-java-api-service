@@ -7,16 +7,20 @@ public class Category extends BaseModel{
 	private Integer id;
 	private String name;
 	private String description;
+	private Boolean isActive;
+	private Boolean isDeleted;
 	
 	public Category() {
 		
 	}
 	
 	public Category(Integer id, String name, String description, Boolean isActive, Boolean isDeleted, Integer createdBy, Date createdOn, Integer updatedBy, Date updatedOn) {
-	    super(isActive, isDeleted, createdBy, createdOn, updatedBy, updatedOn);  // Call BaseModel constructor
+	    super(createdBy, createdOn, updatedBy, updatedOn);
 	    this.id = id;
 	    this.name = name;
 	    this.description = description;
+		this.isActive = isActive;
+		this.isDeleted = isDeleted;
 	}
 	
 	public Integer getId() {
@@ -36,6 +40,19 @@ public class Category extends BaseModel{
 	}
 	public void setDescription(String description) {
 		this.description = description;
+	}
+	public Boolean getIsActive() {
+		return isActive;
+	}
+	public void setIsActive(Boolean isActive) {
+		this.isActive = isActive;
+	}
+	public Boolean getIsDeleted() {
+		return isDeleted;
+	}
+
+	public void setIsDeleted(Boolean isDeleted) {
+		this.isDeleted = isDeleted;
 	}
 
 	@Override
