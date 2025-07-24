@@ -2,6 +2,7 @@ package com.nirmal.project.service.impl;
 
 import com.nirmal.project.dao.CategoryDao;
 import com.nirmal.project.dto.CategoryDto;
+import com.nirmal.project.exception.CategoryAlreadyExistsException;
 import com.nirmal.project.exception.ResourceNotFoundException;
 import com.nirmal.project.model.Category;
 import com.nirmal.project.service.CategoryService;
@@ -23,20 +24,24 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public List<CategoryDto> getAllCategories() {
+        logger.info("Fetching all categories...");
         List<Category> categories = categoryDao.readAllCategories();
+        logger.info("Fetched {} categories", categories.size());
         return categories.stream().map(CategoryMapper::toDto).toList();
-//        return categoryDtoList;
     }
 
     @Override
     public Boolean saveCategory(CategoryDto categoryDto) {
+        if(categoryDao.categoryExistsByName(categoryDto.getName())){
+            logger.info("Category '{}' already exists", categoryDto.getName());
+            throw new CategoryAlreadyExistsException(String.format("Category '%s' already exists", categoryDto.getName()));
+        }
         Category category = CategoryMapper.toEntity(categoryDto);
         category.setIsDeleted(false);
         category.setCreatedBy(1);
 //        category.setCreatedOn(new Date());
         Optional<Category> savedCategory = categoryDao.createCategory(category);
         return savedCategory.isPresent();
-
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.nirmal.project.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.nirmal.project.dto.CategoryDto;
 import com.nirmal.project.exception.GlobalExceptionHandler;
@@ -29,63 +30,52 @@ public class CategoryController {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response saveCategory(@Valid String categoryJson) {
-        try {
-            CategoryDto categoryDto = gson.fromJson(categoryJson, CategoryDto.class);
-            CategoryDtoValidator.validate(categoryDto);
-            Boolean res = categoryService.saveCategory(categoryDto);
-            return Response.status(Response.Status.CREATED)
-                    .entity("{\"message\": \"Category created successfully\"}")
-                    .build();
 
-        } catch (Exception e) {
-            return GlobalExceptionHandler.handle(e);
-        }
+        CategoryDto categoryDto = gson.fromJson(categoryJson, CategoryDto.class);
+        CategoryDtoValidator.validate(categoryDto);
+        Boolean res = categoryService.saveCategory(categoryDto);
+        return Response.status(Response.Status.CREATED)
+                .entity("{\"message\": \"Category created successfully\"}")
+                .build();
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getCategories(@QueryParam("active") Boolean isActive) {
-        try {
-            List<CategoryDto> allCategories;
-            if (isActive == null) {
-                allCategories = categoryService.getAllCategories();
-            } else {
-                allCategories = categoryService.getActiveCategories();
-            }
 
-            if (!allCategories.isEmpty())
-                return Response.ok(gson.toJson(allCategories), MediaType.APPLICATION_JSON).build();
-            return Response.noContent().build();
-        } catch (Exception e) {
-            return GlobalExceptionHandler.handle(e);
+        List<CategoryDto> allCategories;
+        if (isActive == null) {
+            allCategories = categoryService.getAllCategories();
+        } else {
+            allCategories = categoryService.getActiveCategories();
         }
+
+        return Response.ok(gson.toJson(allCategories), MediaType.APPLICATION_JSON).build();
+
     }
 
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getCategoryById(@PathParam("id") Integer id) {
-            Optional<CategoryDto> categoryDto = categoryService.getCategoryById(id);
-            return Response.ok()
-                    .type(MediaType.APPLICATION_JSON)
-                    .entity(gson.toJson(categoryDto.get()))
-                    .build();
-
+        Optional<CategoryDto> categoryDto = categoryService.getCategoryById(id);
+        return Response.ok()
+                .type(MediaType.APPLICATION_JSON)
+                .entity(gson.toJson(categoryDto.get()))
+                .build();
     }
 
     @DELETE
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteCategoryById(@PathParam("id") Integer id) {
-        try {
-            categoryService.deleteCategoryById(id);
-            return Response.ok()
-                    .type(MediaType.APPLICATION_JSON)
-                    .entity(String.format("{\"message\": \"Category with ID -> %d deleted successfully\"}", id))
-                    .build();
-        } catch (Exception e) {
-            return GlobalExceptionHandler.handle(e);
-        }
+
+        categoryService.deleteCategoryById(id);
+        return Response.ok()
+                .type(MediaType.APPLICATION_JSON)
+                .entity(String.format("{\"message\": \"Category with ID -> %d deleted successfully\"}", id))
+                .build();
+
     }
 
     @PATCH
@@ -94,15 +84,13 @@ public class CategoryController {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response updateCategoryById(@PathParam("id") Integer id, String categoryDtoJson) {
         CategoryDto categoryDto = gson.fromJson(categoryDtoJson, CategoryDto.class);
-        try {
-            categoryService.updateCategoryById(id, categoryDto);
-            return Response.ok()
-                    .type(MediaType.APPLICATION_JSON)
-                    .entity(String.format("{\"message\": \"Category with ID -> %d updated successfully\"}", id))
-                    .build();
-        } catch (Exception e) {
-            return GlobalExceptionHandler.handle(e);
-        }
+
+        categoryService.updateCategoryById(id, categoryDto);
+        return Response.ok()
+                .type(MediaType.APPLICATION_JSON)
+                .entity(String.format("{\"message\": \"Category with ID -> %d updated successfully\"}", id))
+                .build();
+
     }
 
 }
